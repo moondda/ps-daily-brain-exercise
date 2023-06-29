@@ -1,18 +1,7 @@
 function solution(l, r) {
-  let result = [];
     
-    // let l_string = l.toString().split("");
-    // l_string[0] = "5"
-    // l = ""
-    // l = l_string.join("");
-    // console.log(l);
-    // if(Number(l) <= r) result.push(Number(l));
-    
+    let result = [];
     if(5 <= r && 5 >= l) result.push(5);
-
-//50 555 
-    
-    
 
     function recursion(a,b) {
         if(Number(a) > r) return;
