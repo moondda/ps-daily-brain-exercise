@@ -1,16 +1,14 @@
 function solution(clothes) {
-    let obj = [];
-    let sum = 1;
+    let map = new Map();
+    let sum = 0;
     
-    for(let i =0; i<clothes.length; i++) {
-        obj[clothes[i][1]] = (obj[clothes[i][1]]) ? obj[clothes[i][1]]+1 : 2;
+    for(let i=0; i<clothes.length; i++) {
+        if(map.has(clothes[i][0])) {
+            map.get(clothes[i][0]).push(clothes[i][1]);
+        }
+        else map.set(clothes[i][0],[clothes[i][1]]);
+        sum++;
     }
-
-    for(let key in obj){
-        sum *= obj[key];
-    }
-
     
-    return sum-1;
-    
+    console.log(map);
 }
