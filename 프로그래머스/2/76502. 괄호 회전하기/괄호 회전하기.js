@@ -1,5 +1,4 @@
 function solution(s) {  
-     if(s.length % 2 === 1) return 0;
     let count = 0;
     for(let i=0; i<s.length; i++) {
         let parsedS = s.slice(i) + s.slice(0,i);
@@ -16,7 +15,7 @@ function solution(s) {
                 }
             }
         }
-           if(flag)  count++;
+           if(flag && stack.length === 0)  count++;
     }
        return count;
 }
