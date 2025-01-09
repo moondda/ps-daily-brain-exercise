@@ -1,25 +1,63 @@
 function solution(progresses, speeds) {
- const dayCost = progresses.map((item, index) => 
-    ((100 - item) % speeds[index] === 0) 
-        ? (100 - item) / speeds[index] 
-        : Math.floor((100 - item) / speeds[index]) + 1
-);
-    console.log(dayCost);
-    const progressCount = [];
-    let rear = 0;
-    const rearLimit = dayCost.length;
-    while(rear !== rearLimit) { //모든 작업이 다 수행될때까지
-        const deploy = dayCost[rear];
-        rear++; //첫번째는 무조건 배포
-        let count = 1; //배포 한개당의 작업 개수
-        for(let j=rear; j<rearLimit; j++) {
-            if(dayCost[j] <= deploy) {
-                count++; 
-                rear++;
-            } //같이 배포가능할떼
-            else break; //다음 배포때 해야함
+    const time = progresses.map((item,i)=> Math.ceil((100-item)/speeds[i]));
+    const queue = new Queue();
+    time.forEach(item => queue.push(item));
+    const result = [];
+    while(!queue.isEmpty()) {
+        let count = 1;
+        const comp = queue.pop();
+        if(queue.isEmpty()) {result.push(count); break;}
+        let flag = true;
+        while(flag && !queue.isEmpty() ) {
+            if(queue.head.data <= comp) {count++; queue.pop();}
+            else {flag = false; break;}
         }
-        progressCount.push(count);
+        result.push(count);
     }
-    return progressCount;
+    
+    return result;
+        
+    
+} 
+
+class Node {
+    constructor(data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+class Queue {
+    constructor() {
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
+    }
+    
+    push(data) {
+        const newNode = new Node(data);
+        if(!this.head) {
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+        this.tail.next = newNode;
+        this.tail = newNode;
+        }
+        this.size++; 
+    }
+    
+    pop() {
+        if(!this.head) return null;
+        const removedNode = this.head;
+        this.head = this.head.next;
+        if(!this.head) this.tail = null;
+        
+        this.size--;
+        return removedNode.data;;
+        
+    }
+    
+    isEmpty() {
+        return this.size === 0;
+    }
 }
