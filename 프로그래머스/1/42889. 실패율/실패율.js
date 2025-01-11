@@ -9,14 +9,11 @@ function solution(N, stages) {
             if(stages[j] === i) count1++;
             if(stages[j] >= i) count2++;
         }
-        if(count2 === 0) failRate.push([i,0]);
-        else failRate.push([i,count1/count2]);
+        if(count2 === 0) failRate.push(0);
+        else failRate.push(count1/count2);
     }
-    
-    const sorted = failRate.sort((a,b)=> {
-        if(a[1]-b[1] > 0) return  b[0]-a[0];
-    });
-    
-    return sorted.map(a=>a[0]);
+    return stageIndex = [...new Array(N)].map((_,i) =>i+1 )
+    .sort((a, b) => failRate[b - 1] - failRate[a - 1] || a - b);
+
 
 }
