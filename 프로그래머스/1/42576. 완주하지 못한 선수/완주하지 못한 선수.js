@@ -1,20 +1,18 @@
 function solution(participant, completion) {
     const pplList = {};
     
-    for(let i=0; i< participant.length; i++) {
+    for(const i of participant) {
         //동명이인이 이미 있으면
-        if(participant[i] in pplList) pplList[participant[i]] += 1;
-        else pplList[participant[i]] = 1;
+        if(i in pplList) pplList[i] += 1;
+        else pplList[i] = 1;
     }
     
-    for(let i=0; i<completion.length; i++) {
-        pplList[completion[i]] -= 1;
+    for(const i of completion) {
+        pplList[i] -= 1;
     }
-    
-    const pplListArr =  Object.entries(pplList);
-    
-    for(let i=0; i<pplListArr.length; i++) {
-        if(pplListArr[i][1] === 1) return pplListArr[i][0];
+
+    for(const i in pplList) {
+        if(pplList[i] === 1) return i;
     }
 
 }
