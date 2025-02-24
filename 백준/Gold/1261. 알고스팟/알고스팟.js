@@ -4,31 +4,32 @@ const input = require("fs")
   .split("\n");
 const [M, N] = input.shift().split(" ").map(Number);
 const status = input.map((e) => e.split("").map(Number));
+const isVisited = Array.from({ length: N }, () => Array(M).fill(0));
 
 //bfs 이용
-const deque = [];
-deque.push([0, 0, 0]);
-const check = Array.from({ length: N }, () => new Array(M).fill(0)); //동일 움직임 방지
-check[0][0] = 1;
+const queue = [{ x: 0, y: 0, break: 0 }];
 
 const dx = [-1, 0, 1, 0];
-const dy = [0, 1, 0, -1];
+const dy = [0, -1, 0, 1];
 
-while (deque.length !== 0) {
-  const [x, y, cnt] = deque.shift();
-  if (x === N - 1 && y === M - 1) console.log(cnt);
-
+while (queue.length !== 0) {
+  const q = queue.shift();
+  if (q.x === M - 1 && q.y === N - 1) console.log(q.break);
   for (let i = 0; i < 4; i++) {
-    const [nx, ny] = [x + dx[i], y + dy[i]];
-    if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
-    if (check[nx][ny]) continue;
-    check[nx][ny] = 1;
+    const nextX = q.x + dx[i];
+    const nextY = q.y + dy[i];
 
-    if (status[nx][ny] === 1) {
-      status[nx][ny] = 0;
-      deque.push([nx, ny, cnt + 1]);
-    } else {
-      deque.unshift([nx, ny, cnt]);
+    if (
+      nextX >= 0 &&
+      nextX <= M - 1 &&
+      nextY >= 0 &&
+      nextY <= N - 1 &&
+      isVisited[nextY][nextX] === 0
+    ) {
+      if (status[nextY][nextX] === 1) {
+        queue.push({ x: nextX, y: nextY, break: q.break + 1 });
+      } else queue.unshift({ x: nextX, y: nextY, break: q.break });
+      isVisited[nextY][nextX] = 1;
     }
   }
 }
