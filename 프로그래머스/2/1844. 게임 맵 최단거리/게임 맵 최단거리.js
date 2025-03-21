@@ -1,24 +1,30 @@
 function solution(maps) {
-    const dx = [-1,0,1,0];
-    const dy = [0,-1,0,1];
+    const dx = [1, -1, 0, 0];
+    const dy = [0, 0, 1, -1];
     
-    const queue = [{x : 0 , y: 0 , count : 1}];
+    const queue = [{pos:[0,0], count:1}];
+    const isVisited = Array.from({length: maps.length} , ()=> Array(maps[0].length).fill(false));
+    isVisited[0][0] = true;
     
     while(queue.length !== 0) {
-        let q = queue.shift();
-        if(q.x === maps[0].length - 1 && q.y === maps.length - 1) return q.count; 
+        const target = queue.shift();
+        if(target.pos[0] === maps.length-1 && target.pos[1] === maps[0].length-1){
+            return target.count;
+            break; 
+            }
         
         for(let i=0; i<4; i++) {
-            const nextX = q.x + dx[i];
-            const nextY = q.y + dy[i];
+            const x = target.pos[0] + dx[i];
+            const y = target.pos[1] + dy[i];
             
-            if(nextX >= 0 && nextX <= maps[0].length -1 && nextY >= 0 && nextY <= maps.length -1 && maps[nextY][nextX] === 1) {
-                maps[nextY][nextX] = 0
-                queue.push({x : nextX, y:nextY, count : q.count + 1});
+            if(x < 0 || x > maps.length-1) continue;
+            if(y < 0 || y > maps[0].length-1) continue;
+            if(maps[x][y] === 1 && isVisited[x][y] === false) {
+                isVisited[x][y] = true;
+                queue.push({pos:[x,y],count:target.count+1});
             }
         }
     }
-    
     return -1; //도달 방법 없을때
     
 }
