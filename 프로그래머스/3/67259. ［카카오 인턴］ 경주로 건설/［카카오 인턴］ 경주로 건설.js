@@ -6,52 +6,48 @@ function solution(board) {
     
     const dx = [-1,0,1,0];
     const dy = [0,-1,0,1];
-
-    const costArr = Array.from({length: board.length}, () =>
-  Array.from({length: board.length}, () => Array(4).fill(Infinity))
-);
+    const isVisited = Array.from({length: board.length}, ()=> Array(board.length).fill(0));
+    isVisited[0][0] = 1;
+    const queue = [{x:0, y:0,sum: 0, cmd : 'start', isVisited : isVisited}];
     
-    const queue = [];
     
-    for (let i = 0; i < 4; i++) {
-    const nx = 0 + dx[i];
-    const ny = 0 + dy[i];
-    if (nx >= 0 && ny >= 0 && nx < board.length - 1 && ny < board[0].length - 1 && board[nx][ny] === 0) {
-        costArr[nx][ny][i] = 100;
-        queue.push({ x: nx, y: ny, cost: 100, dir: i });
-    }
-}
-    
-    while(queue.length !== 0) {
-        const target = queue.pop();
+   while(queue.length !== 0) {
+        const target = queue.shift();
+        if(target.x===board.length-1 && target.y===board[0].length-1){
+            return target.sum;
+        } 
         
         for(let i=0; i<4; i++) {
-            if(target.x+dx[i] < 0 || target.x+dx[i] > board.length - 1 ) continue;
-            if(target.y+dy[i] < 0 || target.y+dy[i] > board[0].length - 1 ) continue;
-            if(board[target.x+dx[i]][target.y+dy[i]] === 1) continue;
-            
-            let addedCost;
-            let dir = i;
-            //전이 위아래였을때
-            if(target.dir === 0 || target.dir === 2) {
-                if(i=== 0 || i === 2) {addedCost = target.cost + 100;}
-                else {addedCost = target.cost + 600; }
+            if(target.x + dx[i] < 0 || 
+                target.x + dx[i] >= board.length ||
+                target.y + dy[i] < 0 || 
+                target.y + dy[i] >= board[0].length ||
+               board[target.x + dx[i]][target.y + dy[i]] === 1 ||
+               target.isVisited[target.x + dx[i]][target.y + dy[i]] === 1
+                ) continue;
+                   
+            if(i === 0 || i === 2) {
+                const newVisit = target.isVisited.map(row => [...row]);
+                newVisit[target.x + dx[i]][target.y + dy[i]] = 1; 
+                
+                if(target.cmd === 'UD' || target.cmd === 'start' )
+                queue.push({x:target.x + dx[i], y:target.y + dy[i] , sum :target.sum + 100 , cmd : 'UD',isVisited : newVisit})
+                
+                if(target.cmd === 'LR')
+                queue.unshift({x:target.x + dx[i], y:target.y + dy[i] , sum :target.sum + 600 , cmd : 'UD',isVisited : newVisit})
             }
             
-            //전이 좌우였을때
-            else if(target.dir === 1 || target.dir === 3) {
-                if(i=== 0 || i === 2) {addedCost = target.cost + 600;}
-                else {addedCost = target.cost + 100;}
-            }
+            if(i === 1 || i === 3) {
+                const newVisit = target.isVisited.map(row => [...row]);
+                newVisit[target.x + dx[i]][target.y + dy[i]] = 1; 
+                
+                if(target.cmd === 'LR' || target.cmd === 'start')
+                queue.push({x:target.x + dx[i], y:target.y + dy[i] , sum :target.sum + 100 , cmd : 'LR',isVisited : newVisit})
+                if(target.cmd === 'UD')
+                queue.unshift({x:target.x + dx[i], y:target.y + dy[i] , sum :target.sum + 600 , cmd : 'LR',isVisited : newVisit})
+                 }  
             
-
-            if(costArr[target.x+dx[i]][target.y+dy[i]][i] > addedCost ) {
-                costArr[target.x+dx[i]][target.y+dy[i]][i]  = addedCost;
-                queue.push({x:target.x+dx[i], y :target.y+dy[i] , cost : addedCost , dir : dir})
-            }
         }
     }
-    
-    return Math.min(...costArr[board.length - 1][board[0].length - 1]);
     
 }
