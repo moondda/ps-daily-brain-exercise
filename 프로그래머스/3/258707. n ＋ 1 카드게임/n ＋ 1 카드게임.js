@@ -18,12 +18,14 @@ function solution(coin, cards) {
   const target = n + 1;
   const hand = cards.slice(0, n / 3);
   const deck = cards.slice(n / 3);
+  let deckPointer = 0;
   const pending = [];
   let turn = 1;
 
-  while (coin >= 0 && deck.length > 0) {
-    pending.push(deck.shift());
-    pending.push(deck.shift());
+    
+  while (coin >= 0 && deckPointer <= deck.length - 1) {
+    pending.push(deck[deckPointer]);
+    pending.push(deck[deckPointer+1]);
 
     if (check(hand, hand, target)) {
       // 0 coin
@@ -34,6 +36,7 @@ function solution(coin, cards) {
     } else {
       break;
     }
+    deckPointer += 2;
     turn += 1;
   }
 
