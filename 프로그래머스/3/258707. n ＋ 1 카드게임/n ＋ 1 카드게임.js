@@ -1,44 +1,67 @@
-function check(deck1, deck2, target) {
-  const operand = new Set(deck2);
-  for (let i = 0; i < deck1.length; i++) {
-    const card = deck1[i];
-    const pair = target - card;
-    if (operand.has(pair)) {
-      // card, pair를 실제 배열에서 제거
-      deck1.splice(deck1.indexOf(card), 1);
-      deck2.splice(deck2.indexOf(pair), 1);
-      return true;
-    }
-  }
-  return false;
-}
-
 function solution(coin, cards) {
-  const n = cards.length;
-  const target = n + 1;
-  const hand = cards.slice(0, n / 3);
-  const deck = cards.slice(n / 3);
-  let deckPointer = 0;
-  const pending = [];
-  let turn = 1;
-
+    let hands = new Set(cards.slice(0,cards.length/3));
+    let deck = cards.slice(cards.length/3);
+    let round = 1;
+    let deckPointer = 0;
+    let pending = [];
+    const n = cards.length;
     
-  while (coin >= 0 && deckPointer <= deck.length - 1) {
-    pending.push(deck[deckPointer]);
-    pending.push(deck[deckPointer+1]);
-
-    if (check(hand, hand, target)) {
-      // 0 coin
-    } else if (coin >= 1 && check(hand, pending, target)) {
-      coin -= 1;
-    } else if (coin >= 2 && check(pending, pending, target)) {
-      coin -= 2;
-    } else {
-      break;
+    while(deckPointer <= deck.length-2) {
+        //매 라운드 뽑는 카드
+        let pickedCard = [deck[deckPointer] , deck[deckPointer+1]];
+        let isDone = false;
+        //pending.add 너무 힘들어짐
+        //뽑은 카드 일단 펜딩
+        pending.push(...pickedCard);
+        
+        //1. hand 카드로 n+1 만듦
+        for(let hand of hands) {
+            if(hands.has(n+1-hand)) {
+                hands.delete(hand);
+                hands.delete(n+1-hand);
+                isDone = true;
+                break;
+            }
+        }   
+        if(isDone) { round += 1; deckPointer += 2; continue;} 
+        
+        //2. 기존 카드 + pending 로 n+1 만듦. coin 1개 소모
+        let flag = false;
+        for(let hand of hands) {
+            for(let picked of pending) {
+                if(hand + picked === n+1 && coin >= 1) {
+                    //뽑힌건 펜딩에서 제외
+                    pending = pending.filter(i => i !== picked);
+                    //짝 맞는 건 손에서 제거
+                    hands.delete(hand);
+                    //코인 처리
+                    coin -= 1;
+                    flag = true;
+                    break;
+                }
+            }
+        if(flag) { isDone = true; break;}
+        }
+        if(isDone) { round += 1; deckPointer += 2; continue;} 
+        
+        //3. pending 카드 2장으로 n+1 만듦. coin 2개 소모
+        let pendingSet = new Set(pending);
+        for(let k of pendingSet) {
+            if(pendingSet.has(n+1-k) && coin >=2) {
+                pending = pending.filter(i => i !== k);
+                pending = pending.filter(i => i !== n+1-k);
+                coin -= 2;
+                isDone = true;
+                break;
+            }
+        }
+        if(isDone) { round += 1; deckPointer += 2; continue;} 
+        
+        break;
+        
+        
     }
-    deckPointer += 2;
-    turn += 1;
-  }
-
-  return turn;
+    
+    
+    return round;
 }
