@@ -1,50 +1,57 @@
 function solution(n, path, order) {
-    const graph = Array.from({ length: n }, () => []);
-    const visited = Array(n).fill(false);
-    const canVisit = Array(n).fill(true);
-    const orderMap = new Map();
-    const waiting = new Map();
-
-    for (let [a, b] of path) {
-        graph[a].push(b);
-        graph[b].push(a);
+    //모든 방은 적어도 한번 탐방
+    //먼저 방문할 방이 정해져있다. 없거나 1개있음
+    //먼저 방문할 방은 중복하지 않는다
+    const graph = Array.from({length:n}, ()=> []);
+    
+    for(let [start,end] of path) {
+        graph[start].push(end);
+        graph[end].push(start);
     }
-
-    for (let [a, b] of order) {
-        if(b === 0) return false;
-        canVisit[b] = false;
-        orderMap.set(a, b);
+    
+    let lockedNum = new Map();
+    let isLocked = Array(n).fill(false);
+    for(let [start,end] of order) {
+        isLocked[end] = true;
+        lockedNum.set(start,end);
     }
-
+    const isVisited = new Set(); //잠금 풀렸을때 바로 방문할 수 있는지 보기 위해
+    const isPassed = new Set(); 
     const queue = [0];
-    visited[0] = true;
-
-    while (queue.length) {
-        const curr = queue.pop();
-
-        //다음 잠금 ㅐ제
-        const unlock = orderMap.get(curr);
-        if (unlock !== undefined) {
-            canVisit[unlock] = true;
-            // 대기 중이었으면 바로 방문 가능
-            if (waiting.has(unlock)) {
-                queue.push(unlock);
-                visited[unlock] = true;
-                waiting.delete(unlock);
+    
+    if(isLocked[0]) return false;
+    
+    while(queue.length) {
+        const target = queue.shift();
+        isVisited.add(target);
+        isPassed.add(target);
+        
+        //잠금 풀수 있는거 있으면 풀기
+        if(lockedNum.get(target)) {
+                const unlocked = lockedNum.get(target);
+                isLocked[unlocked] = false;
+                lockedNum.delete(target);
+                if(isVisited.has(unlocked)) queue.push(unlocked);
+        }
+        
+        for(let node of graph[target]) {
+            isVisited.add(node); //일단 접근은 한거임
+            
+            //안 잠겨있으면
+            if(!isLocked[node] && !isPassed.has(node)) {
+                queue.push(node);
+                isPassed.add(node);
+                
+                //잠금 풀수 있는거 있으면 풀기
+                if(lockedNum.get(node)) {
+                    const unlocked = lockedNum.get(node);
+                    isLocked[unlocked] = false;
+                    lockedNum.delete(node);
+                    if(isVisited.has(unlocked)) queue.push(unlocked);
+                }
             }
         }
-
-        for (let next of graph[curr]) {
-            if (visited[next]) continue;
-            if (!canVisit[next]) {
-                waiting.set(next, true);
-                continue;
-            }
-
-            visited[next] = true;
-            queue.push(next);
-        }
+        
     }
-
-    return visited.every(v => v);
+    return isPassed.size === n ? true : false;
 }
