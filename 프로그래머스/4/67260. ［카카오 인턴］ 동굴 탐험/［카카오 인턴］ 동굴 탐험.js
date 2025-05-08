@@ -22,7 +22,7 @@ function solution(n, path, order) {
     if(isLocked[0]) return false;
     
     while(queue.length) {
-        const target = queue.shift();
+        const target = queue.pop();
         isVisited.add(target);
         isPassed.add(target);
         
