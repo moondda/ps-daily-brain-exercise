@@ -12,16 +12,18 @@ function solution(n, s, a, b, fares) {
         let minPrice = Array(n+1).fill(Infinity);
         minPrice[start] = 0;
         const queue = [[start,0]];
+        let pointer = 0;
     
-        while(queue.length) {
-            const [curr,cost] = queue.shift();
+        while(pointer <= queue.length-1) {
+            const [curr,cost] = queue[pointer];
         
         for(let [key,value] of graph[curr]) {
                 if(minPrice[key] >= minPrice[curr] + value) {
                     minPrice[key] = minPrice[curr] + value;
                     queue.push([key,minPrice[key]]); 
                     }            
-            }     
+            } 
+            pointer++;
         }
         return minPrice;
     }
