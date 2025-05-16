@@ -1,30 +1,39 @@
 function solution(s) {
-    let length = 1;
+    //제일 앞부터!! 정해진 길이만큼
+    
+    //자르는 길이 단위를 1부터 s.length/2까지
+    //=> s.slice(0,i) s.slice(i,~)
+    //기존보다 짧으면 갱신
     let minLength = s.length;
     
-    while(length <= s.length/2) {  
-        let recent = '';
+    for(let i=1; i<Math.floor(s.length/2)+1; i++) { //자르는 길이 단위 순회
+        let before = '';
         let count = 1;
-        let arr = ''; //이번 턴에 만들어지는 배열
-        for(let i=0; i<s.length; i+=length) { 
-            const curr = s.slice(i,i+length);
-            if(recent === curr) count++;
-            
-            //다르면 1. 전꺼 푸시 2. 이번거 초기화
+        let minNow = '';
+        
+        for(let j=0; j< s.length; j+=i) { //s돌면서 자름
+            let curr = s.slice(j,j+i);
+            //비교
+            if(before === curr) count+=1;
             else {
-                if(count === 1) arr += recent;
-                else arr += `${count}${recent}`;
+                if(count === 1 ) minNow += before;
+                else minNow += `${count}${before}`;
                 
-                recent = curr;
+                before = curr;
                 count = 1;
             }
-    }
-        if(count === 1) arr += recent;
-        else arr += `${count}${recent}`;
+            
+        }
         
-        if(arr.length < minLength) minLength = arr.length;
-        length++;  
+        if(count === 1 ) minNow += before;
+        else minNow += `${count}${before}`;
+        
+        
+        if(minLength > minNow.length) {
+            minLength = minNow.length;
+        }
+        
+        
     }
-    
     return minLength;
 }
