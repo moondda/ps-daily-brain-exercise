@@ -1,65 +1,55 @@
 function solution(n, info) {
-    var answer = [];
-    let maxDiff = 0;
-    let maxArr = [];
-    
-    const isMax = (arr1,arr2) => {
-        for (let i = 10; i >= 0; i--) {
-            if(arr1[i] > arr2[i]) return arr1;
-            if(arr1[i] < arr2[i]) return arr2;
-        }
-        return arr1;
-    }
-    const dfs = (arr,pointer,apeach,ryan,leftArrow) => {
-        //끝났을때
+    //0~10점
+    //어피치가 해당 점수에 더 많이 쏘거나 똑같게 쏘면 해당점수 어피치가 가져감
+    //라이언은 어피치보다 많이 쏴야 가져감
+    //둘다 해당 점수에 안쏘면 아무도 안 가져감
+    //최종점수가 라이언이 높으면 라이언승
+    //최종점수가 같거나 어피치가 높으면 어피치 승
+    //라이언이 가장 큰 점수 차로 우승하기 위한 화살 배열 리턴
+    //여러가지 나오면 가장 낮은 점수를 더 많이 맞힌거 리턴
+    //라이언이 우승할수 없으면 [-1] return
+
+    let answerArr = [-1];
+    let maxDiff = 1;
+    const dfs = (pointer,leftArrow, arr,ryanScore,apeachScore) => {
         if(pointer === 11) {
-            //!! 화살 소비해야함
-            if(leftArrow > 0) {
-                arr[arr.length-1] += leftArrow;
+            let finalArr = [...arr];
+            if(leftArrow > 0) finalArr[10] += leftArrow;
+
+            if(ryanScore-apeachScore >= maxDiff ) {
+                if(ryanScore-apeachScore === maxDiff) {
+                    for(let i=10; i>=0; i--) {
+                        if(answerArr[i] < arr[i]) { answerArr=[...finalArr]; break;}
+                        if(answerArr[i] > arr[i]) break;
+                    }
+                }
+                else {
+                    maxDiff = ryanScore-apeachScore;
+                    answerArr = [...finalArr];
+                }
             }
             
-            if(ryan > apeach) {
-                if(maxDiff < ryan-apeach) {
-                    maxDiff = ryan-apeach;
-                    maxArr = arr;
-                }
-                else if(maxDiff === ryan-apeach) {
-                    maxArr = isMax(arr,maxArr);
-                }
-            }
-            return;
+            return;   
         }
         
-        //어피치 승
-        //1. 어피치가 진짜 이겨서 이겼을때. 어피치는 쏘고 라이언은 아예 안 쏨
-        if(info[pointer] > 0) {
-            let newArr = [...arr];
-            newArr[pointer] = 0;
-            dfs(newArr,pointer+1,apeach+10-pointer,ryan,leftArrow);
-        }
-        //2. 비겨서 어피치가 이겼을 때
-        if(info[pointer] > 0 && leftArrow >= info[pointer]) {
-            let newArr = [...arr];
-            newArr[pointer] = info[pointer];
-            dfs(newArr,pointer+1,apeach+10-pointer,ryan,leftArrow-info[pointer]);
+        //이번 점수는 라이언이 가져갈때
+        if(info[pointer] < leftArrow) {
+            arr[pointer] = info[pointer]+1;
+            dfs(pointer+1,leftArrow-info[pointer]-1,arr,ryanScore+10-pointer,apeachScore);
+            arr[pointer] = 0;   
         }
         
-        //라이언 승
-        // 라이언이 이겼을 때
-        if(leftArrow > info[pointer]) {
-            let newArr = [...arr];
-            newArr[pointer] = info[pointer]+1;
-            dfs(newArr,pointer+1,apeach,ryan+10-pointer,leftArrow-info[pointer]-1);
+        //이번 점수는 어피치가 가져갈때 => 라이언은 안 쏨
+        if(info[pointer]>0) {
+            dfs(pointer+1,leftArrow,arr,ryanScore,apeachScore+10-pointer);
         }
         
-        //둘다 점수 안가져감(둘다 안쏨)
-        if(info[pointer] === 0) {
-            let newArr = [...arr];
-            newArr[pointer] = 0;
-            dfs(newArr,pointer+1,apeach,ryan,leftArrow);  
+        //둘다 아무 점수도 쏘지 않아서 아무도 가져가지 않을때
+        if(info[pointer] === 0){
+            dfs(pointer+1,leftArrow,arr,ryanScore,apeachScore);
         }
     }
     
-    dfs(Array(11).fill(null),0,0,0,n);
-    return maxDiff === 0 ? [-1] : maxArr;
+    dfs(0,n, new Array(11).fill(0),0,0);
+    return answerArr;
 }
