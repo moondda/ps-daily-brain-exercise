@@ -1,9 +1,52 @@
+class MinHeap {
+  constructor() {
+    this.heap = [];
+  }
+
+  push(val) {
+    this.heap.push(val);
+    let i = this.heap.length - 1;
+    while (i > 0) {
+      let p = Math.floor((i - 1) / 2);
+      if (this.heap[p][0] <= val[0]) break;
+      this.heap[i] = this.heap[p];
+      i = p;
+    }
+    this.heap[i] = val;
+  }
+
+  pop() {
+    if (this.heap.length === 0) return null;
+    const min = this.heap[0];
+    const last = this.heap.pop();
+    if (this.heap.length === 0) return min;
+
+    let i = 0;
+    const len = this.heap.length;
+    while (i * 2 + 1 < len) {
+      let a = i * 2 + 1;
+      let b = i * 2 + 2;
+      let minIdx = b < len && this.heap[b][0] < this.heap[a][0] ? b : a;
+      if (last[0] <= this.heap[minIdx][0]) break;
+      this.heap[i] = this.heap[minIdx];
+      i = minIdx;
+    }
+    this.heap[i] = last;
+    return min;
+  }
+
+  size() {
+    return this.heap.length;
+  }
+}
+
 function solution(board) {
     //1은 벽
     var answer = 0;
     
     //x,y,cost,dir 아래 위 왼 오
-    const queue = [[0,0,0,0]];
+    const queue = new MinHeap();
+    queue.push([0,0,0,0]);
     let minArr = Array.from({length:board.length}, ()=> Array.from({length:board[0].length} , () => Array(4).fill(Infinity)));
     minArr[0][0][0] = 0;
     minArr[0][0][1] = 0;
@@ -19,11 +62,11 @@ function solution(board) {
         minArr[0][1][1] = 100;
     }
 
-    
-    while(queue.length) { //나중에 포인터로 바꿔 아래 위 왼 오
+    let pointer = 0;
+    while(queue.size()) { //나중에 포인터로 바꿔 아래 위 왼 오
         const dx = [-1,1,0,0];
         const dy = [0,0,-1,1];
-        const [x,y,cost,dir] = queue.shift();
+        const [x,y,cost,dir] = queue.pop();
         
         
         for(let i=0; i<4; i++) {
