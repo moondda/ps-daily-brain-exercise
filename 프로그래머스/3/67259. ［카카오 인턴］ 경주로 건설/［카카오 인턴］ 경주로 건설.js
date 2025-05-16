@@ -8,7 +8,7 @@ class MinHeap {
     let i = this.heap.length - 1;
     while (i > 0) {
       let p = Math.floor((i - 1) / 2);
-      if (this.heap[p][0] <= val[0]) break;
+      if (this.heap[p][2] <= val[2]) break;
       this.heap[i] = this.heap[p];
       i = p;
     }
@@ -26,8 +26,8 @@ class MinHeap {
     while (i * 2 + 1 < len) {
       let a = i * 2 + 1;
       let b = i * 2 + 2;
-      let minIdx = b < len && this.heap[b][0] < this.heap[a][0] ? b : a;
-      if (last[0] <= this.heap[minIdx][0]) break;
+      let minIdx = b < len && this.heap[b][2] < this.heap[a][2] ? b : a;
+      if (last[2] <= this.heap[minIdx][2]) break;
       this.heap[i] = this.heap[minIdx];
       i = minIdx;
     }
