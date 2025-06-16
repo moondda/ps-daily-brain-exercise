@@ -1,20 +1,18 @@
 function solution(players, m, k) {
-    let answer = 0; //총 서버 수
-    let servers = new Map(); 
-    
-    for(let i=0; i<players.length ; i++) {
-        //server 하나씩 줄이고, 0이면 내쫒기
-        if(Math.floor(players[i] / m) > servers.size ) {
-            let count =  Math.floor(players[i] / m) - servers.size;
-            answer += count;
-            for(let j=0 ; j<count; j++) {
-                servers.set(`${i}+${j}`, k);
-            }
-        }
-        for(let [key,value] of servers) {
-            servers.set(key, value-1);
-            if(value-1 === 0) servers.delete(key);
+    let result = 0
+    const servers = Array(k).fill(0);
+    for(let i = 0; i < 24; i++){
+        servers.shift();
+        const server = servers.reduce((acc, cur)=> acc+cur, 0)
+        const needServer = Math.floor(players[i] / m)
+        if(server < needServer){
+            // 수용 가능 인원보다 유저가 많으면 서버 추가
+            const addServer = needServer - server
+            servers.push(addServer)
+            result += addServer
+        } else {
+            servers.push(0)
         }
     }
-    return answer;
+    return result;
 }
