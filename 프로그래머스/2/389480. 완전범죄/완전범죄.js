@@ -1,32 +1,22 @@
 function solution(info, n, m) {
-    const maxB = 120;
-    const dp = Array.from({length: info.length + 1} , () => Array(maxB + 1).fill(Infinity));
+    let dpA = Array.from({length:info.length+1}, ()=>Array(121).fill(Infinity));
+    //[몇번째까지 진행됐는지][b흔적 개수] = a 흔적 최소 개수
+    dpA[0][0] = 0;
     
-    dp[0][0] = 0;
-
-    for (let i = 0; i < info.length; i++) {
-        const [aTrace, bTrace] = info[i];
-        for (let b = 0; b <= maxB; b++) {
-            if (dp[i][b] === Infinity) continue;
-            
-            // A가 훔침
-            const newA = dp[i][b] + aTrace;
-            if (newA < n) {
-                dp[i + 1][b] = Math.min(dp[i + 1][b], newA);
-            }
-
-            // B가 훔침
-            const newB = b + bTrace;
-            if (newB < m) {
-                dp[i + 1][newB] = Math.min(dp[i + 1][newB], dp[i][b]);
-            }
+    for(let i=0; i<info.length; i++) {
+        const [aAdd,bAdd] = info[i];
+        for(let b = 0; b <= 120; b++){
+            //a가 훔침
+            if(dpA[i][b] + aAdd < n)
+            dpA[i+1][b] = Math.min(dpA[i+1][b] , dpA[i][b] + aAdd);
+            //b가 훔침
+            if(b+bAdd < m)
+            dpA[i+1][b+bAdd] = Math.min(dpA[i+1][b+bAdd], dpA[i][b])
         }
     }
-
-    let result = Infinity;
-    for (let b = 0; b < m; b++) {
-        result = Math.min(result, dp[info.length][b]);
-    }
-
+    
+    const result = Math.min(...dpA[info.length]);
+    
+    
     return result === Infinity ? -1 : result;
 }
