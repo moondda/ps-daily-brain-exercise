@@ -1,18 +1,27 @@
 function solution(players, m, k) {
-    let result = 0
-    const servers = Array(k).fill(0);
-    for(let i = 0; i < 24; i++){
-        servers.shift();
-        const server = servers.reduce((acc, cur)=> acc+cur, 0)
-        const needServer = Math.floor(players[i] / m)
-        if(server < needServer){
-            // 수용 가능 인원보다 유저가 많으면 서버 추가
-            const addServer = needServer - server
-            servers.push(addServer)
-            result += addServer
-        } else {
-            servers.push(0)
+    let count = 0;
+    let queue = [];
+    
+    //해당 시간에 들어옴
+    //서버 부족하면 보충
+    //1빼고 서버 0되면 shift하고 다음 시간으로 loop
+    for(let i=0; i<players.length; i++) {
+        
+        for(let j=0; j< queue.length; j++) {
+            queue[j] -= 1;
         }
+        while(queue.length > 0 && queue[0] === 0) {
+            queue.shift();
+        }
+
+        if(Math.floor(players[i] / m) > queue.length) {
+            const diff = Math.floor(players[i] / m) - queue.length;
+            for(let j=0; j< diff; j++ ) {
+                queue.push(k);
+                count += 1;
+            }
+        }
+        
     }
-    return result;
+    return count;
 }
