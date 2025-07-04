@@ -1,119 +1,65 @@
-class MinHeap {
-  constructor() {
-    this.heap = [];
-  }
-
-  push(val) {
-    this.heap.push(val);
-    let i = this.heap.length - 1;
-    while (i > 0) {
-      let p = Math.floor((i - 1) / 2);
-      if (this.heap[p][2] <= val[2]) break;
-      this.heap[i] = this.heap[p];
-      i = p;
-    }
-    this.heap[i] = val;
-  }
-
-  pop() {
-    if (this.heap.length === 0) return null;
-    const min = this.heap[0];
-    const last = this.heap.pop();
-    if (this.heap.length === 0) return min;
-
-    let i = 0;
-    const len = this.heap.length;
-    while (i * 2 + 1 < len) {
-      let a = i * 2 + 1;
-      let b = i * 2 + 2;
-      let minIdx = b < len && this.heap[b][2] < this.heap[a][2] ? b : a;
-      if (last[2] <= this.heap[minIdx][2]) break;
-      this.heap[i] = this.heap[minIdx];
-      i = minIdx;
-    }
-    this.heap[i] = last;
-    return min;
-  }
-
-  size() {
-    return this.heap.length;
-  }
-}
-
 function solution(board) {
-    //1은 벽
     var answer = 0;
+    //최소비용 -> 다익스트라
+    //[좌표x][좌표y][방향] = 최소비용
+    const N = board.length;
+    const queue = [];
+    const dx = [-1,1,0,0];
+    const dy = [0,0,-1,1];
+    let costArr = Array.from({length:N} , ()=> Array.from({length:N}, ()=> Array(4).fill(Infinity)));
+    //0은 아래, 1은 위, 2은 오른, 3은 왼쪽에서 들어옴
+    costArr[0][0][0] = 0;
+    costArr[0][0][1] = 0;
+    costArr[0][0][2] = 0;
+    costArr[0][0][3] = 0;
+    costArr[1][0][1] = 100;
+    costArr[0][1][3] = 100;
+    if(board[1][0] === 0) queue.push([100,1,0,1]);
+    if(board[0][1] === 0) queue.push([100,0,1,3]);
     
-    //x,y,cost,dir 아래 위 왼 오
-    const queue = new MinHeap();
-    queue.push([0,0,0,0]);
-    let minArr = Array.from({length:board.length}, ()=> Array.from({length:board[0].length} , () => Array(4).fill(Infinity)));
-    minArr[0][0][0] = 0;
-    minArr[0][0][1] = 0;
-    minArr[0][0][2] = 0;
-    minArr[0][0][3] = 0;
-    
-    if (board[1][0] === 0) {
-        queue.push([1, 0, 100, 0]);
-        minArr[1][0][2] = 100;
-    }
-    if (board[0][1] === 0) {
-        queue.push([0, 1, 100, 3]);
-        minArr[0][1][1] = 100;
-    }
-
-    let pointer = 0;
-    while(queue.size()) { //나중에 포인터로 바꿔 아래 위 왼 오
-        const dx = [-1,1,0,0];
-        const dy = [0,0,-1,1];
-        const [x,y,cost,dir] = queue.pop();
-        
-        
+    while(queue.length > 0) {
+        const [cost,x,y,dir] = queue.shift();
+        if(x=== N-1 && y === N-1) continue;
         for(let i=0; i<4; i++) {
             const nextX = x+dx[i];
             const nextY = y+dy[i];
             
-            if(nextX < 0 || nextX > board.length-1) continue;
-            if(nextY < 0 || nextY > board[0].length-1) continue;
+            if(nextX < 0 || nextX > N-1 || nextY <0 || nextY > N-1) continue;
             if(board[nextX][nextY] === 1) continue;
-      
             
-           //     console.log(x,y,cost,dir,i)
-            if(dir === 0 || dir === 1) {
-                if(i === 0 || i === 1) {
-                    //비용이 최소면 100 추가
-                    if( minArr[nextX][nextY][i] > cost + 100) {
-                        minArr[nextX][nextY][i] = cost + 100;
-                        queue.push([nextX,nextY,minArr[nextX][nextY][i],i]);
-                    } 
+            //위아래
+            if(i===0 || i===1) {
+                if(dir===0 || dir===1) { //이전방향
+                    if(costArr[nextX][nextY][i] > cost + 100) {
+                        costArr[nextX][nextY][i] = cost + 100;
+                        queue.push([cost+100,nextX,nextY,i]);
+                    }
                 }
-                if(i === 2 || i === 3) {
-                    //비용이 최소면 600 추가
-                    if( minArr[nextX][nextY][i] > cost + 600) {
-                        minArr[nextX][nextY][i] = cost + 600;
-                        queue.push([nextX,nextY,minArr[nextX][nextY][i],i]);
-                    } 
+                else{ //방향 다름
+                    if(costArr[nextX][nextY][i] > cost + 600) {
+                        costArr[nextX][nextY][i] = cost + 600;
+                        queue.push([cost+600,nextX,nextY,i]);
+                    }
                 }
             }
-            else if(dir === 2 || dir === 3) {
-                if(i === 2 || i === 3) {
-                    //비용이 최소면 100 추가
-                    if( minArr[nextX][nextY][i] > cost + 100) {
-                        minArr[nextX][nextY][i] = cost + 100;
-                        queue.push([nextX,nextY,minArr[nextX][nextY][i],i]);
-                    } 
+            //좌우
+            else if(i===2 || i===3) {
+                if(dir===0 || dir===1) { //이전방향
+                    if(costArr[nextX][nextY][i] > cost + 600) {
+                        costArr[nextX][nextY][i] = cost + 600;
+                        queue.push([cost+600,nextX,nextY,i]);
+                    }
                 }
-                if(i === 0 || i === 1) {
-                    //비용이 최소면 600 추가
-                    if( minArr[nextX][nextY][i] > cost + 600) {
-                        minArr[nextX][nextY][i] = cost + 600;
-                        queue.push([nextX,nextY,minArr[nextX][nextY][i],i]);
-                    } 
-                }
+                else{ //방향 같음
+                    if(costArr[nextX][nextY][i] > cost + 100) {
+                        costArr[nextX][nextY][i] = cost + 100;
+                        queue.push([cost+100,nextX,nextY,i]);
+                    }
+                }      
             }
-                       
         }
+        //최소비용 비교후 
+        //표 갱신 큐 push
     }
-
-    return Math.min(...minArr[board.length-1][board[0].length-1]);
+    return Math.min(...costArr[N-1][N-1]);
 }
