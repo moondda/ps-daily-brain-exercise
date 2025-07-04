@@ -1,28 +1,30 @@
 function solution(n, bans) {
-    const numBans = bans.map(spell => strToNum(spell)).sort((a,b) => a-b);
-    let target = n;
-    numBans.forEach(num => {
-        if (num <= target) {
-            target += 1;
+    //ban된것의 원래 사전 순서 구하기 => strToNum 
+    //n이랑 비교해서 ban된게 목표순서(n)보다 먼저 나오면 목표순서+1 해야함
+    //숫자로 사전알파벳 구하기 => numToStr
+    const strToNum = (str) => {
+        let num = 0;
+        for(let i=0; i<str.length; i++) {
+            num = num*26 + (str.charCodeAt(i) -97 + 1);
         }
-    });
-    const answer = numToStr(target);
-    return answer;
-}
-
-function strToNum(spell) {
-    let result = 0;
-    for (let i = 0; i < spell.length; i++) {
-        result = result * 26 + (spell.charCodeAt(i) - 96);
+        return num;
     }
-    return result;
-}
-
-function numToStr(num) {
-    let result = "";
-    while (num > 0) {
-        result = String.fromCharCode(((num-1) % 26) + 97) + result;
-        num = Math.floor((num-1) / 26);
+    
+    const bansNum = bans.map((ban)=> strToNum(ban)).sort((a,b)=> a-b);
+    let target = n; 
+    for(let ban of bansNum) {
+        if(ban <= target) target += 1;
     }
-    return result;
+    
+    const numToStr = (num) => {
+        let s = '';
+        while(num > 0) {
+            num--;
+            s = String.fromCharCode(num % 26 + 97) + s;
+            num = Math.floor(num / 26);
+        }
+        return s;
+        
+    }
+    return numToStr(target);
 }
