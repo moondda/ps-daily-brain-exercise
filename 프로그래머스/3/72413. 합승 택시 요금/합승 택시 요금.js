@@ -1,42 +1,38 @@
 function solution(n, s, a, b, fares) {
-    let graph = Array.from({length:n+1} , () => Array(n+1).fill(Infinity));
+    let graph = Array.from({length:n+1} , () => new Map());
     
     for(let [c,d,cost] of fares) {
-        graph[c][d] = Math.min(graph[c][d], cost);
-        graph[d][c] = Math.min(graph[d][c], cost);
-        graph[c][c] = 0;
-        graph[d][d] = 0;
+        graph[c].set(d,cost);
+        graph[d].set(c,cost);   
     }
     
     const queue = [];
     
     const getMin = (s) => {
-    for(let i=1; i<graph[s].length; i++) {
-        const target = graph[s][i];
-        if(s == i || target == Infinity) continue;
-        queue.push(i)
-    }
-    
+        let min = Array(n+1).fill(Infinity);
+        min[s] = 0;
+        
+        queue.push([0,s]);
+        
     while(queue.length) {
-        const start = queue.shift(); //[null,24,null,24,null,0,2]
-        for(let i=1; i<=n+1; i++) { // [66,10,50]
-            const next = graph[start][i];
-            if(next === Infinity) continue;
-            if(graph[s][i] > graph[s][start] + graph[start][i]) {
-                graph[s][i] = graph[s][start] + graph[start][i];
-                graph[i][s] = graph[s][start] + graph[start][i];
-                queue.push(i);
-                }
+        const [cost,curr] = queue.shift(); //[null,24,null,24,null,0,2]
+        for(let [node,cost] of graph[curr]) {
+            if( min[node] > min[curr] + cost) {
+                min[node] = min[curr] + cost;
+                queue.push([min[node],node]);
+            }
             }
         }
+        
+        return min;
     }
     
-    getMin(s);
-    getMin(a);
-    getMin(b);
+    const minS = getMin(s);
+    const minA = getMin(a);
+    const minB = getMin(b);
     let min = Infinity;
     for(let i=1 ; i< n+1; i++) {
-        min = Math.min(min, graph[s][i] + graph[i][a] + graph[i][b]);
+        min = Math.min(min, minS[i] + minA[i] + minB[i]);
     }
     
     return min;
