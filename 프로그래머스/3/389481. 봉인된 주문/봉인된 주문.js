@@ -1,31 +1,28 @@
 function solution(n, bans) {
-    const numBans = bans.map(spell => spellToNumber(spell)).sort((a,b) => a-b);
+    const numBans = bans.map(spell => strToNum(spell)).sort((a,b) => a-b);
     let target = n;
     numBans.forEach(num => {
         if (num <= target) {
             target += 1;
-        } else {
-            return false;
         }
     });
-    const answer = numberToSpell(target);
+    const answer = numToStr(target);
     return answer;
 }
 
-function spellToNumber(spell) {
+function strToNum(spell) {
     let result = 0;
     for (let i = 0; i < spell.length; i++) {
-        result = result * 26 + (spell.charCodeAt(i) - 'a'.charCodeAt(0) + 1);
+        result = result * 26 + (spell.charCodeAt(i) - 96);
     }
     return result;
 }
 
-function numberToSpell(num) {
+function numToStr(num) {
     let result = "";
     while (num > 0) {
-        num--;
-        result = String.fromCharCode((num % 26) + 'a'.charCodeAt(0)) + result;
-        num = Math.floor(num / 26);
+        result = String.fromCharCode(((num-1) % 26) + 97) + result;
+        num = Math.floor((num-1) / 26);
     }
     return result;
 }
