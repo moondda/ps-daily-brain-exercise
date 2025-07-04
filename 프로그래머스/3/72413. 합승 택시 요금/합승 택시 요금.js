@@ -1,41 +1,43 @@
 function solution(n, s, a, b, fares) {
-    //합승을 안할 수도 있음
-    //[c지점,d지점, 두 지점 사이의 택시요금]
-    const graph = Array.from({length : n+1} , ()=> new Map());
+    let graph = Array.from({length:n+1} , () => Array(n+1).fill(Infinity));
     
-    for(let [c,d,f] of fares) {
-        graph[c].set(d,f);
-        graph[d].set(c,f);
+    for(let [c,d,cost] of fares) {
+        graph[c][d] = Math.min(graph[c][d], cost);
+        graph[d][c] = Math.min(graph[d][c], cost);
+        graph[c][c] = 0;
+        graph[d][d] = 0;
     }
     
-    const distra = (start) => {
-        let minPrice = Array(n+1).fill(Infinity);
-        minPrice[start] = 0;
-        const queue = [[start,0]];
-        let pointer = 0;
+    const queue = [];
     
-        while(pointer <= queue.length-1) {
-            const [curr,cost] = queue[pointer];
-        
-        for(let [key,value] of graph[curr]) {
-                if(minPrice[key] >= minPrice[curr] + value) {
-                    minPrice[key] = minPrice[curr] + value;
-                    queue.push([key,minPrice[key]]); 
-                    }            
-            } 
-            pointer++;
+    const getMin = (s) => {
+    for(let i=1; i<graph[s].length; i++) {
+        const target = graph[s][i];
+        if(s == i || target == Infinity) continue;
+        queue.push(i)
+    }
+    
+    while(queue.length) {
+        const start = queue.shift(); //[null,24,null,24,null,0,2]
+        for(let i=1; i<=n+1; i++) { // [66,10,50]
+            const next = graph[start][i];
+            if(next === Infinity) continue;
+            if(graph[s][i] > graph[s][start] + graph[start][i]) {
+                graph[s][i] = graph[s][start] + graph[start][i];
+                graph[i][s] = graph[s][start] + graph[start][i];
+                queue.push(i);
+                }
+            }
         }
-        return minPrice;
     }
-  
-    let sum = Infinity;
     
-    const minS = distra(s);
-    const minA = distra(a);
-    const minB = distra(b);
-    for(let i=0; i<n+1; i++) {
-        //i부터 시작해서 a가는 최소 요금
-        sum = Math.min(sum, minS[i] + minA[i] + minB[i]);
+    getMin(s);
+    getMin(a);
+    getMin(b);
+    let min = Infinity;
+    for(let i=1 ; i< n+1; i++) {
+        min = Math.min(min, graph[s][i] + graph[i][a] + graph[i][b]);
     }
-    return sum;
+    
+    return min;
 }
