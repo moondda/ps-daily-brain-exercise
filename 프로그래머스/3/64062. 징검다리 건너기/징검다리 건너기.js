@@ -1,24 +1,19 @@
 function solution(stones, k) {
-    
-    let left = 1;
     let right = 200000000;
-    
-    const canCross = (mid) => {
-        let count = 0;
-        for(let i of stones) {
-            if(i<=mid) count++;
-            else count =0;
-            if(count === k) return false;
-        }
-        return true;
-    }
+    let left = 0;
     
     while(left <= right) {
-        const mid = Math.floor((left + right) /2);
-        if(canCross(mid)) left = mid+1;
-        else right = mid-1;     
+        let mid = Math.floor((left+right)/2);
+        let skip =0;
+        for(let stone of stones) {
+            if(stone < mid) skip++;
+            else skip = 0;
+            
+            if(skip >= k) break;
+        }
+        if(skip >= k) right = mid-1; //무조건 안됨
+        else left = mid +1; //더 커도 됨
+        
     }
-    
-    return left;
+    return left-1;
 }
-    
