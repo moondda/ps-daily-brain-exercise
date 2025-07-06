@@ -4,25 +4,29 @@ let input = require("fs")
   .trim()
   .split("\n");
 
-const [N, C] = input.shift().split(" ").map(Number);
+const [N, C] = input.shift().split(" ").map(Number); //N:집의 개수 C:공유기 개수
+
 input = input.map(Number).sort((a, b) => a - b);
 
-let left = 1;
-let right = input[input.length - 1] - input[0];
+let right = input[N - 1] - input[0];
+let left = 0;
 
 while (left <= right) {
-  const mid = Math.floor((left + right) / 2); //인접한 두 공유기 최대 거리
-  let lastInstalled = input[0]; //1개 일단 설치
-  let installCount = 1;
+  const mid = Math.floor((right + left) / 2); //최대거리
+  let installedIdx = 0;
+  let installedCount = 1;
+
   for (let i = 1; i < input.length; i++) {
-    if (mid <= input[i] - lastInstalled) {
-      installCount += 1;
-      lastInstalled = input[i];
+    //[1,2,4,8,9]
+    if (input[i] - input[installedIdx] >= mid) {
+      installedIdx = i;
+      installedCount++;
     }
   }
-  if (installCount >= C) {
+
+  if (installedCount >= C) {
     left = mid + 1;
   } else right = mid - 1;
 }
 
-console.log(right);
+console.log(left - 1);
