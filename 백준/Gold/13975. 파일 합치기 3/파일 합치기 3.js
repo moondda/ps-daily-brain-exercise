@@ -4,67 +4,72 @@ let input = require("fs")
   .trim()
   .split("\n");
 
+//9시 35분
 let T = +input.shift();
 
 class MinHeap {
   constructor() {
-    this.h = [];
+    this.heap = [];
   }
   size() {
-    return this.h.length;
+    return this.heap.length;
   }
   peek() {
-    return this.h[0];
+    return this.heap[0];
   }
   push(v) {
-    let h = this.h,
-      i = h.push(v) - 1;
-    while (i && h[i] < h[(i - 1) >> 1]) {
-      [h[i], h[(i - 1) >> 1]] = [h[(i - 1) >> 1], h[i]];
+    let heap = this.heap;
+    let i = heap.push(v) - 1;
+
+    while (i > 0 && heap[i] < heap[(i - 1) >> 1]) {
+      [heap[i], heap[(i - 1) >> 1]] = [heap[(i - 1) >> 1], heap[i]];
       i = (i - 1) >> 1;
     }
   }
   pop() {
-    let h = this.h;
-    if (!h.length) return;
-    let r = h[0],
-      last = h.pop();
-    if (h.length) {
-      h[0] = last;
+    let heap = this.heap;
+    if (!heap.length) return;
+
+    let first = heap[0];
+    let last = heap.pop();
+    let i = 0;
+
+    if (heap.length) {
       let i = 0;
-      while (1) {
-        let l = i * 2 + 1,
-          rgt = l + 1,
-          min = i;
-        if (l < h.length && h[l] < h[min]) min = l;
-        if (rgt < h.length && h[rgt] < h[min]) min = rgt;
-        if (min === i) break;
-        [h[i], h[min]] = [h[min], h[i]];
+      heap[0] = last;
+
+      while (true) {
+        let min = i;
+        let left = 2 * i + 1;
+        let right = left + 1;
+
+        if (left < heap.length && heap[left] < heap[min]) min = left;
+        if (right < heap.length && heap[right] < heap[min]) min = right;
+        if (min == i) break;
+
+        [heap[min], heap[i]] = [heap[i], heap[min]];
         i = min;
       }
     }
-    return r;
+    return first;
   }
 }
 
 for (let i = 0; i < input.length; i += 2) {
-  const pageCount = +input[i];
-  const pages = input[i + 1].split(" ").map(Number);
+  const K = +input[i];
+  const arr = input[i + 1].split(" ").map(Number);
   const heap = new MinHeap();
 
-  for (let page of pages) {
-    heap.push(page);
+  for (let a of arr) {
+    heap.push(a);
   }
-
-  let currCost = 0;
-
+  let cost = 0;
   while (heap.size() > 1) {
-    if (heap.size() >= 2) {
-      const a = heap.pop();
-      const b = heap.pop();
-      heap.push(a + b);
-      currCost += a + b;
-    }
+    const min1 = heap.pop();
+    const min2 = heap.pop();
+
+    heap.push(min1 + min2);
+    cost += min1 + min2;
   }
-  console.log(currCost);
+  console.log(cost);
 }
