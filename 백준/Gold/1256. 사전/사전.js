@@ -1,60 +1,35 @@
-let input = require("fs")
-  .readFileSync(process.platform === "linux" ? "/dev/stdin" : "./input.txt")
-  .toString()
-  .trim()
-  .split("\n");
+let input = require("fs").readFileSync(0, "utf8").trim().split("\n");
+let [N, M, Knum] = input[0].split(" ").map(Number);
 
-//n개의a, M개의 z , k번째 문자열
-let [N, M, K] = input.shift().split(" ").map(Number);
-
-// const combination = (arr, k) => {
-//   if (k == 1) return arr.map((e) => [e]);
-
-//   const result = [];
-
-//   arr.forEach((fixed, idx, origin) => {
-//     const rest = arr.slice(idx + 1);
-//     const combis = combination(rest, k - 1);
-//     const attached = combis.map((e) => [fixed, ...e]);
-
-//     result.push(...attached);
-//   });
-
-//   return result;
-// };
-
-// combination()
-
-const factorial = (k) => {
-  k = BigInt(k);
-  let result = 1n;
-  for (let i = 1n; i <= k; i++) {
-    result *= i;
+const C = Array.from({ length: N + M + 1 }, () => Array(N + 1).fill(0n));
+C[0][0] = 1n;
+for (let i = 1; i <= N + M; i++) {
+  C[i][0] = 1n;
+  const jMax = Math.min(i, N);
+  for (let j = 1; j <= jMax; j++) {
+    C[i][j] = C[i - 1][j - 1] + C[i - 1][j];
   }
-  return result;
-};
-
-const allCount = factorial(N + M) / (factorial(N) * factorial(M));
-
-const result = [];
-let targetK = BigInt(K);
-let countA = N;
-let countB = M;
-if (allCount < targetK) console.log("-1");
-else {
-  while (countA + countB > 0) {
-    countA -= 1;
-    //countB = M;
-    const aCount =
-      factorial(countA + countB) / (factorial(countA) * factorial(countB));
-    if (targetK <= aCount && countA >= 0) {
-      result.push("a");
-    } else {
-      countA += 1; //복구
-      countB -= 1;
-      targetK -= aCount;
-      result.push("z");
-    }
-  }
-  console.log(result.join(""));
 }
+
+let K = BigInt(Knum);
+if (C[N + M][N] < K) {
+  console.log("-1");
+  process.exit(0);
+}
+
+let a = N, z = M;
+const out = [];
+while (a + z > 0) {
+  if (a === 0) { out.push("z"); z--; continue; }
+  if (z === 0) { out.push("a"); a--; continue; }
+  const aCount = C[a + z - 1][a - 1];
+  if (K <= aCount) {
+    out.push("a");
+    a--;
+  } else {
+    out.push("z");
+    K -= aCount; 
+    z--;
+  }
+}
+console.log(out.join(""));
